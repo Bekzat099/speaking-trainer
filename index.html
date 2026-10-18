@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Speaking — тренажёр (59 тем)</title>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--card2:#27364d;--tx:#e2e8f0;--mut:#94a3b8;--acc:#38bdf8;--grn:#22c55e;--red:#ef4444}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:'Segoe UI',system-ui,Arial,sans-serif}
+.wrap{max-width:780px;margin:0 auto;padding:14px 14px 90px}
+header{position:sticky;top:0;background:rgba(15,23,42,.96);backdrop-filter:blur(6px);z-index:10;border-bottom:1px solid #334155}
+h1{font-size:18px;margin:8px 0 0}
+.tabs{display:flex;gap:8px;margin:10px 0 10px;flex-wrap:wrap}
+.btn{border:0;border-radius:10px;padding:10px 15px;font-size:15px;cursor:pointer;background:var(--card2);color:var(--tx);font-family:inherit;transition:filter .1s}
+.btn:hover{filter:brightness(1.25)}
+.btn.primary{background:var(--acc);color:#06263a;font-weight:700}
+.btn.green{background:var(--grn);color:#052e12;font-weight:700}
+.btn.red{background:var(--red);color:#fff;font-weight:700}
+.btn.big{font-size:17px;padding:15px 22px}
+.stats{font-size:13px;color:var(--mut);margin-top:10px}
+.progress{height:6px;background:#334155;border-radius:3px;margin-top:8px;overflow:hidden}
+.progress>div{height:100%;background:var(--acc);width:0%;transition:width .2s}
+.cardbox{background:var(--card);border-radius:16px;padding:24px 22px;margin-top:14px;min-height:250px;display:flex;flex-direction:column}
+.chip{font-size:12px;color:var(--acc);text-transform:uppercase;letter-spacing:.6px}
+.topic{font-size:23px;font-weight:700;margin:8px 0 14px;line-height:1.25}
+.answer{flex:1;display:flex;flex-direction:column;justify-content:center}
+.en{font-size:19px;line-height:1.5;margin-bottom:12px}
+.tr{font-size:15px;line-height:1.5;color:var(--mut);margin-bottom:8px}
+.tr b{color:#cbd5e1}
+.hidden-box{border:1px dashed #475569;border-radius:14px;padding:26px;text-align:center;color:var(--mut);font-size:16px;cursor:pointer}
+.hidden-box b{color:var(--tx);font-size:18px}
+.navrow{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.navrow .btn{flex:1}
+.actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.actions .btn{flex:1;min-width:140px}
+.hint{font-size:12px;color:var(--mut);margin-top:12px;text-align:center}
+.sechead{background:var(--acc);color:#06263a;font-weight:700;border-radius:10px;padding:8px 12px;margin:24px 0 10px;font-size:14px}
+.item{background:var(--card);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.item .topic{font-size:16px;margin:0 0 8px}
+.item .en{font-size:15.5px;margin-bottom:6px}
+.item .tr{font-size:14px;margin-bottom:4px}
+.enlocked{color:var(--mut);font-size:14px;cursor:pointer}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1>🎤 Speaking — тренажёр (59 тем, A1-A2)</h1>
+  <div class="tabs">
+    <button class="btn primary" id="tab-list" onclick="showList()">📖 Всё</button>
+    <button class="btn" id="tab-cards" onclick="showCards()">🎴 Карточки (зубрить)</button>
+    <button class="btn" id="btn-hide" onclick="toggleHide()">🙈 Скрыть английский</button>
+  </div>
+</div></header>
+<div class="wrap">
+  <div id="list-view"></div>
+  <div id="card-view" style="display:none">
+    <div class="stats" id="stats"></div>
+    <div class="progress"><div id="pbar"></div></div>
+    <div class="cardbox" id="card"></div>
+    <div class="navrow">
+      <button class="btn" onclick="nav(-1)">← Назад</button>
+      <button class="btn" onclick="nav(1)">Дальше →</button>
+      <button class="btn" onclick="reshuffle()">🔀 Перемешать</button>
+    </div>
+    <div class="hint">Клавиатура: Space/Enter — показать и дальше · ←/→ — навигация · 1 — знаю · 2 — не знаю</div>
+  </div>
+</div>
+<script>
+const DATA = [{"title": "1-БӨЛІМ. PEOPLE — АДАМДАР", "topics": [{"t": "People 1. A famous person", "en": "My favourite actor is Andrew Garfield. I like him because he is a very good actor.", "ru": "Мой любимый актёр — Эндрю Гарфилд. Мне он нравится, потому что он очень хороший актёр.", "kz": "Сүйікті актерім — Эндрю Гарфилд. Мен оны жақсы көремін, өйткені ол өте жақсы актёр."}, {"t": "People 2. A sports star", "en": "I don't have a favourite sports star. I am not interested in sports, so I don't watch it.", "ru": "У меня нет любимого спортсмена. Я не увлекаюсь спортом, поэтому его не смотрю.", "kz": "Менің сүйікті спортшым жоқ. Мен спортқа қызықпаймын, сондықтан оны көрмеймін."}, {"t": "People 3. A singer or musician", "en": "My favourite singer is Lana Del Rey. I like her voice and her songs very much.", "ru": "Моя любимая певица — Лана Дель Рэй. Мне очень нравятся её голос и её песни.", "kz": "Сүйікті әншім — Лана Дель Рей. Менің оның дауысы мен әндері өте ұнайды."}, {"t": "People 4. A character from a story/film/TV programme", "en": "My favourite character is The Flash from the famous series. He is very fast and always helps people.", "ru": "Мой любимый персонаж — Флеш из известного сериала. Он очень быстрый и всегда помогает людям.", "kz": "Менің сүйікті кейіпкерім — танымал сериалдағы Флеш. Ол өте жылдам әрі әрқашан адамдарға көмектеседі."}, {"t": "People 5. An old person", "en": "The old person who influenced me is my grandmother. She is kind and gives me good advice.", "ru": "Пожилой человек, повлиявший на меня, — моя бабушка. Она добрая и даёт мне хорошие советы.", "kz": "Маған әсер еткен қарт адам — менің әжем. Ол мейірімді және маған жақсы кеңес береді."}, {"t": "People 6. A teacher who has influenced you", "en": "A teacher who influenced me is my Russian language teacher. She is very kind, and her lessons are interesting.", "ru": "Влиявшая на меня учительница — моя учительница русского языка. Она очень добрая, и её уроки интересные.", "kz": "Маған әсер еткен мұғалім — менің орыс тілі мұғалімім. Ол өте мейірімді, ал оның сабақтары қызықты."}, {"t": "People 7. A neighbour", "en": "I live in a dormitory now. All the people here are my age, so it is easy to find a common language with them.", "ru": "Сейчас я живу в общежитии. Здесь все люди моего возраста, поэтому с ними легко найти общий язык.", "kz": "Қазір мен общежитиеде тұрамын. Мұндағы барлығы маған тең жаста, сондықтан олармен тіл табысу оңай."}, {"t": "People 8. A child you know", "en": "I know my sister's children. They already talk very well and tell me their stories.", "ru": "Я знаю детей моей сестры. Они уже хорошо разговаривают и рассказывают мне свои истории.", "kz": "Мен сестрәмнің балаларын білемін. Олар енді жақсы сөйлейді және маған өздерінің әңгімелерін айтады."}, {"t": "People 9. A family member", "en": "I love all my family, but my sister is my favourite. We have been together since childhood.", "ru": "Я люблю всю свою семью, но моя сестра — самая любимая. Мы вместе с детства.", "kz": "Отбасымның барлығын жақсы көремін, бірақ сүйіктім — сестрәм. Біз бала кезден бері бірге боламыз."}, {"t": "People 10. Compare two family members", "en": "I would like to compare my sister and me. She is very smart and draws very well, and I want to be like her.", "ru": "Хочу сравнить мою сестру и себя. Она очень умная и очень хорошо рисует, и я хочу быть как она.", "kz": "Мен сестрәм менен салыстырғым келеді. Ол өте ақылды және өте жақсы сурет салады, мен оның мысалын алғым келеді."}, {"t": "People 11. Someone you have studied or worked with", "en": "When I prepared for the entrance exam, I studied with one girl. She worked very hard and gave it her all.", "ru": "Когда я готовился к поступлению, я учился с одной девушкой. Она очень сильно старалась и полностью входила в работу.", "kz": "ЕНТ-ге дайындалған кезде мен бір қызбен бірге оқыдым. Ол өте көп еңбек етіп, жұмысқа басын тығып кірді."}, {"t": "People 12. A friend", "en": "My best friend is a cheerful and positive person. From time to time we go for a walk and make plans for the future.", "ru": "Мой лучший друг — весёлый и позитивный человек. Время от времени мы выходим гулять и строим планы на будущее.", "kz": "Ең жақын досым — көңілді әрі позитивті адам. Біз кейде серуендеп, болашақ жоспар құрамыз."}, {"t": "People 13. A happy person you know", "en": "I think my sister is a truly happy person. She is slowly building her family and her future.", "ru": "Я думаю, моя сестра — по-настоящему счастливая. Она потихоньку строит свою семью и своё будущее.", "kz": "Менің ойымша, сестрәм шынында бақытты адам. Ол біртіндеп өз отбасын мен болашағын құрып жатыр."}, {"t": "People 14. A successful leader who you admire", "en": "A good leader is a person who listens to others and makes fair decisions. I admire people like that because they inspire others.", "ru": "Хороший лидер — это человек, который слушает других и принимает справедливые решения. Я восхищаюсь такими людьми, потому что они вдохновляют других.", "kz": "Жақсы көшбасшы — басқаларды тыңдап, әділ шешім қабылдайтын адам. Мен мұндай адамдарды құрметтеймін, өйткені олар басқаларға үлгі болады."}, {"t": "People 15. Someone you know who speaks another language", "en": "My friend speaks English very well. I want to be like her and learn English.", "ru": "Моя подруга очень хорошо говорит по-английски. Я хочу быть как она и учить английский.", "kz": "Менің досым ағылшын тілін өте жақсы сөйлейді. Мен оныңдай болғым келеді."}]}, {"title": "2-БӨЛІМ. PLACE — ОРЫНДАР", "topics": [{"t": "Place 1. An important building", "en": "An important building in my city is the railway station. It is one of the busiest places because people travel from there every day.", "ru": "Важное здание в моём городе — железнодорожный вокзал. Это одно из самых оживлённых мест, потому что оттуда ежедневно едут люди.", "kz": "Менің қаламдағы маңызды ғимарат — теміржол вокзалы. Ол ең қарбалас орындардың бірі, өйткені адамдар күн сайын сол жерден жолға шығады."}, {"t": "Place 3. A famous building", "en": "A famous building I have seen is the Khan Shatyr in Almaty. It is a big dome, and many tourists visit it.", "ru": "Знаменитое здание, которое я видел, — «Хан Шатыр» в Алматы. Это большой купол, и его посещают многие туристы.", "kz": "Көрген әйгілі ғимаратым — Алматыдағы «Хан Шатыр». Ол үлкен құмбаз және оны көп туристер аралайды."}, {"t": "Place 4. A place of natural beauty", "en": "A place of natural beauty I have visited is the mountains near Almaty. I climbed up into the mountains, and the view was amazing.", "ru": "Место естественной красоты, куда я ходил, — горы рядом с Алматы. Я поднялся в горы, и вид был потрясающий.", "kz": "Барған табиғаты әсем орным — Алматы маңындағы таулар. Мен тауға көтерілдім, көрініс керемет еді."}, {"t": "Place 5. A peaceful place", "en": "My favourite peaceful places are quiet places like a library or a park. I like it when there is no one there.", "ru": "Мои любимые спокойные места — тихие места, такие как библиотека или парк. Мне нравится, когда там никого нет.", "kz": "Сүйікті тыныш орындарым — кітапхана немесе саябақ сияқты тыныш орындар. Сол жерде ешкім болмағанда маған ұнайды."}, {"t": "Place 6. A quiet place", "en": "A quiet place I often go to is the library. It is quiet, and I can read there.", "ru": "Тихое место, куда я часто хожу, — библиотека. Там тихо, и я могу читать.", "kz": "Жиі баратын тыныш орным — кітапхана. Ол жерде тыныш және мен онда оқи аламын."}, {"t": "Place 7. A place in your city that you know well", "en": "A place in my city that I know well is the Aray City shopping centre. I go there with my friends to shop and walk.", "ru": "Место в моём городе, которое я хорошо знаю, — торговый центр «Арай Сити». Я хожу туда с друзьями за покупками и гулять.", "kz": "Қаламда жақсы білетін орным — «Арай Сити» сауда орталығы. Мен сол жерге достарыммен дүкенге барып, серуендеймін."}, {"t": "Place 8. A walk that you regularly take", "en": "I walk around the city streets two or three times a week. It is a good way to rest.", "ru": "Я гуляю по улицам города два-три раза в неделю. Это хороший способ отдохнуть.", "kz": "Аптасына екі-үш рет қала көшелерімен серуендеймін. Бұл демалудың жақсы жолы."}, {"t": "Place 9. A garden or park", "en": "My favourite park is one where it is quiet and calm. I like to sit there and rest.", "ru": "Мой любимый парк — тот, где тихо и спокойно. Мне нравится посидеть там и отдохнуть.", "kz": "Сүйікті саябағым — тыныш әрі бейбіт орын. Мен сол жерде отырып, демалғанды жақсы көремін."}, {"t": "Place 10. A river, lake or sea you have visited", "en": "I visited the sea with my family. We had a good time there.", "ru": "Я ездил на море с семьёй. Мы хорошо провели время там.", "kz": "Отбасыммен бірге теңізге бардық. Біз сол жерде жақсы демалдық."}, {"t": "Place 11. A shop", "en": "My favourite shop is a little far from my home. But while I walk to it, I enjoy the fresh air.", "ru": "Мой любимый магазин немного далеко от дома. Но пока я иду к нему, я наслаждаюсь свежим воздухом.", "kz": "Сүйікті дүкенім үйімізден сәл алыс, бірақ жолда таза ауада серуендей аламын."}, {"t": "Place 12. A library", "en": "The library I visit is right near my home. I do my homework there.", "ru": "Библиотека, которую я посещаю, — прямо рядом с домом. Я делаю там домашнее задание.", "kz": "Баратын кітапханам үйіміздің жанында ғана. Мен сол жерде үй тапсырмаларымды орындаймын."}, {"t": "Place 13. A museum you have visited", "en": "I have not visited a big museum or gallery yet. I hope to visit one in the future.", "ru": "Я ещё не посетил большой музей или галерею. Надеюсь, в будущем побываю.", "kz": "Мен әлі үлкен музейге немесе галереяға бармадым. Болашақта барғым келеді."}, {"t": "Place 14. Your childhood home", "en": "My childhood was spent in my grandmother's house. All our relatives gathered there, and we had fun together.", "ru": "Моё детство прошло в доме бабушки. Вся родня собиралась там, и мы весело проводили время вместе.", "kz": "Бала кезім әжемнің үйінде өтті. Сол жерде бүкіл туыстар жиналып, бірге көңілді уақыт өткіздік."}, {"t": "Place 15. Your idea of an ideal house", "en": "My ideal house would stand near the mountains and a small stream. It would be a big two or three storey house with a garden.", "ru": "Мой идеальный дом стоял бы рядом с горами и ручейком. Он был бы большим домом на два-три этажа с огородом.", "kz": "Арманымдағы үй таулар мен кішкентай бұлақ жанында тұрар еді. Ол бақшасы бар үлкен 2-3 қабатты үй болар еді."}, {"t": "Place 16. A restaurant", "en": "Recently I visited a restaurant with my friends. The food was tasty and the interior was beautiful.", "ru": "Недавно я побывал в ресторане с друзьями. Еда была вкусной, а интерьер красивым.", "kz": "Жақында достарыммен бірге мейрамханаға бардым. Тағамдары дәмді, ал интерьері әдемі еді."}, {"t": "Place 17. A city you would like to visit", "en": "The first city I want to visit is New York in winter. I dream of seeing it under the snow.", "ru": "Первый город, который я хочу посетить, — зимний Нью-Йорк. Я мечтаю увидеть его под снегом.", "kz": "Барғым келетін алғашқы қала — қыстағы Нью-Йорк. Мен оның қар астындағы көрінісін көруге армандамын."}, {"t": "Place 18. A country you would like to visit", "en": "The country I would like to visit is Turkey. I want to see its beautiful cities and try its food.", "ru": "Страна, которую я хотел бы посетить, — Турция. Я хочу увидеть её красивые города и попробовать её еду.", "kz": "Барғым келетін ел — Түркия. Оның әдемі қалаларын көріп, тағамдарын дәмдеп көргім келеді."}, {"t": "Place 19. A city/town/village you have visited", "en": "Last summer I visited my aul, my small village. It is a quiet and beautiful place, and I feel happy there.", "ru": "В прошлом летом я посетил свой аул, свою маленькую деревню. Это тихое и красивое место, и мне там хорошо.", "kz": "Өткен жаз өз ауылыма бардым. Ол тыныш әрі әдемі орын, мен сол жерде өзімді жақсы сезінемін."}, {"t": "Place 20. A monument", "en": "A famous monument in my city is the one to Yuri Gagarin. He was the first man in space, and I respect him.", "ru": "Знаменитый памятник в моём городе — памятник Юрию Гагарину. Он был первым человеком в космосе, и я его уважаю.", "kz": "Менің қаламдағы әйгілі ескерткіш — Юрий Гагаринге арналған ескерткіш. Ол ғарыштағы алғашқы адам, мен оны құрметтеймін."}, {"t": "Place 21. A hotel", "en": "I have never stayed in a hotel. But I would like to try it one day.", "ru": "Я никогда не останавливался в отеле. Но я хотел бы попробовать это когда-нибудь.", "kz": "Мен ешқашан қонақүйде тұрған жоқпын. Бірақ бір күні қонақүйде тұрып көргім келеді."}, {"t": "Place 22. Your favourite room", "en": "My favourite room is the kitchen. It is warm there, and the whole family gathers.", "ru": "Моя любимая комната — кухня. Там тепло, и собирается вся семья.", "kz": "Сүйікті бөлмем — ас үй. Сол жерде жылы, және бүкіл отбасы жиналады."}]}, {"title": "3-БӨЛІМ. HOBBY / ACTIVITY — ХОББИ ЖӘНЕ ӘРЕКЕТТЕР", "topics": [{"t": "Hobby 1. A free-time activity", "en": "In my free time I draw. It is my favourite hobby, and I do it often.", "ru": "В свободное время я рисую. Это моё любимое хобби, и я занимаюсь им часто.", "kz": "Бос уақытымда сурет саламын. Бұл менің сүйікті ісім, мен оны жиі жасаймын."}, {"t": "Hobby 2. A hobby you would like to take up", "en": "I would like to learn to play a musical instrument. I think it will be fun and interesting.", "ru": "Я хотел бы научиться играть на музыкальном инструменте. Я думаю, это будет весело и интересно.", "kz": "Мен музыкалық аспап шалуды үйренгім келеді. Менің ойымша, бұл қызықты болады."}, {"t": "Hobby 3. Something you do to help you relax", "en": "To relax, I play video games with my friends. I have fun and forget about my tiredness.", "ru": "Чтобы отдохнуть, я играю в видеоигры с друзьями. Мне весело, и я забываю об усталости.", "kz": "Демалу үшін достарыммен видеоойындар ойнаймын. Менге көңілді болады және шаршағанды ұмытамын."}, {"t": "Hobby 4. A sport you enjoy watching or playing", "en": "I don't watch sports, so I don't have a favourite one. I prefer spending my time with friends.", "ru": "Я не смотрю спорт, поэтому у меня нет любимого. Я предпочитаю проводить время с друзьями.", "kz": "Мен спорт көрмеймін, сондықтан сүйіктім жоқ. Уақытымды достарыммен өткізгенді жақсы көремін."}, {"t": "Hobby 5. A sport you would like to try", "en": "I would like to try tennis. It is a popular and fun sport.", "ru": "Я хотел бы попробовать теннис. Это популярный и весёлый спорт.", "kz": "Мен теннисді ойнап көргім келеді. Бұл танымал әрі қызықты спорт."}, {"t": "Hobby 6. An outside activity", "en": "My favourite outdoor activity is walking. I walk in the streets and feel the fresh air.", "ru": "Моё любимое занятие на свежем воздухе — прогулка. Я гуляю по улицам и дышу свежим воздухом.", "kz": "Сүйікті ашық ауадағы әрекетім — серуендеу. Көшелермен серуендеп, таза ауаны сезінемін."}, {"t": "Hobby 7. A game you enjoyed as a child", "en": "As a child I loved playing football in the yard with my friends. Those games taught me to work in a team.", "ru": "В детстве я любил играть в футбол во дворе с друзьями. Эти игры научили меня работать в команде.", "kz": "Бала кезімде достарыммен аулада футбол ойнағанды жақсы көрдім. Сол ойындар командада жұмыс істеуді үйретті."}, {"t": "Hobby 8. Something you like to do at weekends", "en": "At weekends I sleep more. I do my homework or spend time with my friends.", "ru": "В выходные я сплю подольше. Я занимаюсь уроками или провожу время с друзьями.", "kz": "Демалыс күндері көбірек ұйықтаймын. Үй тапсырмаларын жасаймын немесе достарыммен уақыт өткіземін."}]}, {"title": "4-БӨЛІМ. OTHERS — БАСҚА ТАҚЫРЫПТАР", "topics": [{"t": "Others 1. A wild animal in your country", "en": "In Kazakhstan there are wild animals like the snow leopard and wolves. I think the snow leopard is the most beautiful of them.", "ru": "В Казахстане есть дикие животные, такие как снежный барс и волки. Я думаю, снежный барс — самый красивый из них.", "kz": "Қазақстанда қар барысы мен қасқырлар сияқты жабайы жануарлар бар. Менің ойымша, қар барысы олардың ең әдемісі."}, {"t": "Others 2. An environmental problem", "en": "The biggest problem is air pollution in cities. Cars and factories make the air dirty, and it is bad for people.", "ru": "Самая большая проблема — загрязнение воздуха в городах. Автомобили и заводы делают воздух грязным, и это вредно для людей.", "kz": "Ең үлкен мәселе — қалалардағы ауаның ласталуы. Автокөліктер мен зауыттар ауаны ластайды, бұл адамдарға зиян."}, {"t": "Others 3. A subject you liked at school", "en": "The subject I liked at school was Russian. I liked it because it is useful and interesting.", "ru": "Предмет, который мне нравился в школе, — русский язык. Он мне нравился, потому что он полезный и интересный.", "kz": "Мектепте ұнатқан пәнім — орыс тілі. Ол пайдалы әрі қызықты болғандықтан, маған ұнататын."}, {"t": "Others 4. An ideal job", "en": "My ideal job is in IT. I want to make games and applications.", "ru": "Моя идеальная работа — в сфере IT. Я хочу создавать игры и приложения.", "kz": "Арманымдағы жұмыс — IT саласында. Мен ойындар мен қосымшалар жасағым келеді."}, {"t": "Others 5. Food", "en": "My favourite food is manti. It is a traditional Kazakh dish, and I love it.", "ru": "Моё любимое блюдо — манты. Это традиционное казахское блюдо, и я очень его люблю.", "kz": "Сүйікті тағамым — манты. Бұл қазақтың дәстүрлі тағамы, мен оны жақсы көремін."}, {"t": "Others 6. Type of clothes", "en": "I usually wear comfortable and loose clothes. They are easy to wear every day.", "ru": "Я обычно ношу удобную и свободную одежду. Её легко носить каждый день.", "kz": "Әдетте ыңғайлы әрі кең киімдерді киемін. Оларды күн сайын кию оңай."}, {"t": "Others 7. Favourite month or season", "en": "My favourite month is January. It is the beginning of the New Year, and my birthday is in January too.", "ru": "Мой любимый месяц — январь. Это начало Нового года, и мой день рождения тоже в январе.", "kz": "Сүйікті айым — қаңтар. Бұл Жаңа жылдың бастауы, және менің туған күнім де қаңтарда."}, {"t": "Others 8. Favourite type of weather", "en": "My favourite weather is cloudy with rain. I like sitting at home and listening to the rain.", "ru": "Моя любимая погода — пасмурная, с дождём. Мне нравится сидеть дома и слушать дождь.", "kz": "Сүйікті ауа райым — бұлыңғыр, жаңбырлы. Үйде отырып, жаңбыр дыбысын тыңдағанды жақсы көремін."}, {"t": "Others 9. Extreme weather", "en": "In our region it is very hot in summer. Sometimes it is so hot that it is hard to go outside.", "ru": "В нашем регионе летом очень жарко. Иногда так жарко, что трудно выходить на улицу.", "kz": "Біздің аймақта жазда өте ыстық болады. Кейде осы ыстықта сыртқа шығу қиын болады."}, {"t": "Others 10. Something good about your personality", "en": "One good thing about my personality is that I am ready to help everyone. My friends and family say that I am kind.", "ru": "Одно хорошее качество в моей личности — я готов помочь всем. Друзья и семья говорят, что я добрый.", "kz": "Мінезімнің жақсы қасиеті — мен барлығына көмектесуге дайынмын. Достарым мен отбасым мені мейірімді дейді."}, {"t": "Others 11. A future plan or ambition", "en": "My main plan for the future is to become the best in my field. I know I must work hard for it.", "ru": "Мой главный план на будущее — стать лучшим в своей сфере. Я знаю, для этого нужно много работать.", "kz": "Болашақтағы негізгі жоспарым — өз саламда ең жақсы болу. Бұл үшін көп еңбек етуім керек екенін білемін."}, {"t": "Others 12. An important invention before computers", "en": "One important invention before computers was the car. It changed the way people travel and made distances feel shorter.", "ru": "Одно из важных изобретений до появления компьютера — автомобиль. Он изменил способ передвижения людей и сделал расстояния ближе.", "kz": "Компьютерге дейінгі маңызды ойлап табулардың бірі — автомобиль. Ол адамдардың жүріп-тұру тәсілін өзгертіп, қашықтықты жақын етті."}, {"t": "Others 13. A form of public transport", "en": "My favourite form of public transport is the bus. It is convenient and not expensive.", "ru": "Моё любимое средство общественного транспорта — автобус. Он удобный и не дорогой.", "kz": "Сүйікті қоғамдық көлігім — автобус. Ол ыңғайлы әрі қымбат емес."}, {"t": "Others 14. A public event", "en": "A public event I remember is the day of my city. There were a lot of people, and famous people performed on the stage.", "ru": "Публичное мероприятие, которое я помню, — день моего города. Было очень много людей, и на сцене выступали знаменитости.", "kz": "Есімде сақтайтын қоғамдық іс-шарам — қаламның мерекесі. Көп адамдар болды, сахнада танымалдар орындады."}, {"t": "Others 15. A sporting event", "en": "I am not close to sports, so I have not been to a big sporting event. But I would like to go to one in the future.", "ru": "Я не близок к спорту, поэтому я не был на большом спортивном мероприятии. Но я хотел бы сходить на такое в будущем.", "kz": "Мен спортқа жақын емеспін, сондықтан үлкен спорттық шараға барған жоқпын. Бірақ болашақта мұндай шараға барғым келеді."}]}];
+let cards=[], queue=[], pos=0, known=new Set(), unknown=new Set(), revealed=false, hideMode=false;
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function init(){
+  cards=[];
+  DATA.forEach(s=>s.topics.forEach(t=>cards.push(Object.assign({sec:s.title.split('—')[0].trim()},t))));
+  reset();
+  renderList();
+}
+function reset(){queue=cards.map((_,i)=>i);pos=0;known.clear();unknown.clear();revealed=false;update();}
+function resetUnknown(){queue=cards.map((_,i)=>i).filter(i=>unknown.has(i));pos=0;revealed=false;update();}
+function cur(){return cards[queue[pos]]}
+function nav(d){if(!queue.length)return;pos=(pos+d+queue.length)%queue.length;revealed=false;update();}
+function showAns(){revealed=true;update();}
+function mark(ok){
+  if(!queue.length)return;
+  const i=queue[pos];
+  if(ok){known.add(i);unknown.delete(i);queue.splice(pos,1);}
+  else{unknown.add(i);known.delete(i);queue.splice(pos,1);queue.push(i);pos=Math.min(pos+1,queue.length-1);}
+  revealed=false;update();
+}
+function reshuffle(){const q=queue.slice();for(let i=q.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[q[i],q[j]]=[q[j],q[i]];}queue=q;pos=0;revealed=false;update();}
+function update(){
+  const total=cards.length;
+  document.getElementById('stats').textContent = 'В очереди: '+queue.length+' · Позиция: '+(queue.length?(pos+1)+'/'+queue.length:'—')+' · ✅ знаю: '+known.size+' · ❌ не знаю: '+unknown.size;
+  document.getElementById('pbar').style.width=(known.size/total*100)+'%';
+  const c=document.getElementById('card');
+  if(!queue.length){
+    c.innerHTML='<div style="text-align:center;padding:26px 0"><div style="font-size:44px">🎉</div>'+
+      '<div class="topic" style="margin-top:8px">Всё пройдено!</div>'+
+      '<div class="tr" style="text-align:center">Знаю: '+known.size+' · Не знаю: '+unknown.size+'</div>'+
+      '<div class="actions" style="justify-content:center">'+
+      (unknown.size?'<button class="btn red big" onclick="resetUnknown()">Повторить «не знаю» ('+unknown.size+')</button>':'')+
+      '<button class="btn big" onclick="reset()">Заново (все 59)</button>'+
+      '<button class="btn" onclick="showList()">К списку</button></div></div>';
+    return;
+  }
+  const cd=cur();
+  if(revealed){
+    c.innerHTML='<div class="chip">'+esc(cd.sec)+'</div><div class="topic">'+esc(cd.t)+'</div>'+
+      '<div class="answer"><div class="en">🇬🇧 '+esc(cd.en)+'</div>'+
+      '<div class="tr"><b>Перевод:</b> '+esc(cd.ru)+'</div>'+
+      '<div class="tr"><b>Аудармасы:</b> '+esc(cd.kz)+'</div></div>'+
+      '<div class="actions"><button class="btn red big" onclick="mark(false)">❌ Не знаю</button>'+
+      '<button class="btn green big" onclick="mark(true)">✅ Знаю</button></div>';
+  }else{
+    c.innerHTML='<div class="chip">'+esc(cd.sec)+'</div><div class="topic">'+esc(cd.t)+'</div>'+
+      '<div class="answer"><div class="hidden-box" onclick="showAns()">💭 Подумай ответ по-английски…<br><b>Нажми, чтобы показать</b></div></div>'+
+      '<div class="navrow"><button class="btn primary big" onclick="showAns()">Показать ответ</button></div>';
+  }
+}
+function renderList(){
+  document.getElementById('list-view').innerHTML = DATA.map(s=>
+    '<div class="sechead">'+esc(s.title)+'</div>'+
+    s.topics.map(t=>'<div class="item"><div class="topic">'+esc(t.t)+'</div>'+
+      '<div class="en">🇬🇧 '+esc(t.en)+'</div>'+
+      '<div class="tr">🇷🇺 '+esc(t.ru)+'</div>'+
+      '<div class="tr">🇰🇿 '+esc(t.kz)+'</div></div>').join('')).join('');
+}
+function toggleHide(){
+  hideMode=!hideMode;
+  document.getElementById('btn-hide').textContent = hideMode?'👁 Показать английский':'🙈 Скрыть английский';
+  document.querySelectorAll('#list-view .en').forEach(el=>{
+    if(hideMode){
+      if(!el.dataset.orig) el.dataset.orig=el.innerHTML;
+      el.innerHTML='<span class="enlocked">🔒 Английский — нажми, чтобы показать</span>';
+    }else{
+      el.innerHTML = el.dataset.orig || el.innerHTML;
+    }
+  });
+}
+document.addEventListener('click',e=>{
+  const s=e.target.closest('.enlocked');
+  if(s){const en=s.closest('.en'); if(en&&en.dataset.orig) en.innerHTML=en.dataset.orig;}
+});
+function showList(){
+  document.getElementById('list-view').style.display='';
+  document.getElementById('card-view').style.display='none';
+  document.getElementById('tab-list').classList.add('primary');
+  document.getElementById('tab-cards').classList.remove('primary');
+}
+function showCards(){
+  document.getElementById('list-view').style.display='none';
+  document.getElementById('card-view').style.display='';
+  document.getElementById('tab-cards').classList.add('primary');
+  document.getElementById('tab-list').classList.remove('primary');
+  update();
+}
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('card-view').style.display==='none')return;
+  if(e.code==='Space'||e.code==='Enter'){e.preventDefault();if(!revealed)showAns();else nav(1);}
+  else if(e.key==='ArrowRight')nav(1);
+  else if(e.key==='ArrowLeft')nav(-1);
+  else if(e.key==='1'&&revealed)mark(true);
+  else if(e.key==='2'&&revealed)mark(false);
+});
+init();
+</script>
+</body>
+</html>
